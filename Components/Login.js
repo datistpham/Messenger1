@@ -1,13 +1,17 @@
 import React from "react"
-import {View, Button, Text, Image, StyleSheet, TextInput, TouchableHighlight,Pressable} from 'react-native'
+import {View, Text, Image, StyleSheet, TextInput ,Pressable} from 'react-native'
 import ImageAvatar from '../assets/Facebook-Messenger-Logo-PNG-High-Quality-Image.png'
 import { useNavigation } from "@react-navigation/native"
 import {useState} from 'react'
-const Login= (props)=> {
+import { useGetPosts } from "../Api/useRequest"
+
+const Login= (props)=> {  
+    const {data} = useGetPosts()
     return (
         <View style={styles.container}>
             <ImageRepresent />      
             <EnterInput />
+            {console.log(data)}
         </View>
     )
 }

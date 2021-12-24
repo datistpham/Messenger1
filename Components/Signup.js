@@ -150,7 +150,7 @@ const ChooseDateofBirth= (props)=> {
                         style={styles.stylePicker}
                         onValueChange={(itemValue, itemIndex) => setSelectedValue((prev)=> ({...prev,month: itemValue}))}
                     >
-                    {_.range(1,12).map(item=> <Picker.Item key={item} label={`${item}`} value={item}/>)}
+                    {_.range(1,13).map(item=> <Picker.Item key={item} label={`${item}`} value={item}/>)}
             
                     </Picker>
                 <Picker
