@@ -1,12 +1,14 @@
+import { getFirstName1, getSurName1 } from "../Constant"
+
 const getFirstName= (userObj)=> {
     return {
-        type: "getFirstName",
+        type: getFirstName1,
         payload: userObj
     }
 }
 const getSurName= (userObj)=> {
     return {
-        type: "getSurName",
+        type: getSurName1,
         payload: userObj
     }
 }

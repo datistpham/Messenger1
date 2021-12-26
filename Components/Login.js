@@ -6,17 +6,17 @@ import {useState} from 'react'
 import { useGetPosts } from "../Api/useRequest"
 
 const Login= (props)=> {  
-    const {data} = useGetPosts()
+    const { status, data, error, isFetching } = useGetPosts()
+
     return (
         <View style={styles.container}>
             <ImageRepresent />      
             <EnterInput />
-            {console.log(data)}
         </View>
     )
 }
 
-export default Login
+export default React.memo(Login)
 
 const ImageRepresent= ()=> {
     return (

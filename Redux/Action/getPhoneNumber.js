@@ -1,6 +1,8 @@
+import { getPhoneNumber1 } from "../Constant"
+
 const getPhoneNumber= (userObj)=> {
     return {
-        type: "getPhoneNumber",
+        type: getPhoneNumber1,
         payload: userObj
     }
 }

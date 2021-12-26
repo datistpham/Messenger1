@@ -1,20 +1,24 @@
 import { useQuery } from "react-query"
-import { GraphQLClient, gql } from "graphql-request"
-const API_URL= `http://localhost:4000/graphql`
-const grapQLClient= new GraphQLClient(API_URL)
+import {  gql, request } from "graphql-request"
+const endpoint= "http://localhost:4000/graphql"
 
 export const useGetPosts= ()=> {
-    return useQuery("get-alluser", async ()=> {
-        const { getPostList }= await grapQLClient.request(gql `
+    return useQuery("users", async () => {
+        const data = await request(
+          endpoint,
+          gql`
             query {
-                users {
-                    firstname
-                    surname
-                    age
-                }
+              users {
+                age
+                firstname
+                surname
+                date
+                month
+                year
+              }
             }
-        `)
-        return getPostList
-    })
+          `
+        );
+        return data;
+      });
 }
-

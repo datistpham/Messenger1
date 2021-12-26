@@ -4,8 +4,10 @@ export const typeDefs = gql `
         id: ID!,
         firstname: String!,
         surname: String, 
-        date: Int, month: Int, 
-        year: Int, age: Int,
+        date: Int, 
+        month: Int, 
+        year: Int, 
+        age: Int,
         phonenumber: String,
         gender: String,
         password: String

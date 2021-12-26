@@ -1,3 +1,4 @@
+
 export const resolvers= {
     Query: {
         users: async(parent, args, context)=> await context.mongoDataMethods.getAllUser()

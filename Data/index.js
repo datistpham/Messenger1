@@ -1,8 +1,7 @@
 import { userSchemaInter } from "../Model/User.js"
 
 export const mongoDataMethods= {
-    getAllUser: async ()=> {
-        
+    getAllUser: async ()=> {    
         return await userSchemaInter.find()
     },
     createUser: async (args)=> {

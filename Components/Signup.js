@@ -1,14 +1,25 @@
 import React, { useState } from "react"
-import {TextInput, Button, View, Text, StyleSheet, Pressable} from 'react-native'
+import {TextInput, View, Text, StyleSheet, Pressable, Image} from 'react-native'
 import { createStackNavigator } from "@react-navigation/stack"
 import { useNavigation } from "@react-navigation/native"
 import { Picker } from "@react-native-picker/picker"
 import _ from 'lodash'
 import { RadioButton } from "react-native-paper"
-import { useSelector } from "react-redux"
-import { useDispatch } from "react-redux"
+import { useSelector,useDispatch } from "react-redux"
 import allActions from "../Redux/Action"
+import ChevronLeft from '../assets/chervon-left.png'
+import Dialog, { SlideAnimation, DialogContent, DialogTitle, DialogFooter,DialogButton } from 'react-native-popup-dialog'
+import getBirthDay from "../Redux/Action/getBirthDay"
+
 const Stack= createStackNavigator()
+const IconChevronLeft= ()=> {
+    const navigation= useNavigation()
+    return (
+        <Pressable onPress={()=> navigation.goBack()} style={styles.container8}>
+            <Image source={ChevronLeft}  style={styles.image2} tintColor="white" />
+        </Pressable>
+    )
+}
 const Signup= (props)=> {
     return (
         <View style={styles.container}>
@@ -20,6 +31,7 @@ const Signup= (props)=> {
 const Header= ()=> {
     return (
         <View style={styles.header}>
+            <IconChevronLeft />
             <Text style={styles.headerText}>Join Messenger </Text>
         </View>
     )
@@ -60,7 +72,6 @@ const EnterName= (props)=> {
     )
 }
 const FirstNameValue= ()=> {
-    const firstName= useSelector((state)=> state.firstName)
     const dispatch= useDispatch()
     return (
         <View>
@@ -69,7 +80,6 @@ const FirstNameValue= ()=> {
     )
 }
 const SurNameValue= ()=> {
-    const surName= useSelector((state)=> state.surName)
     const dispatch= useDispatch()
     return (
         <View>
@@ -79,9 +89,24 @@ const SurNameValue= ()=> {
 }
 const Next= (props)=> {
     const navigation= useNavigation()
+    const firstName= useSelector((state)=> state.firstName)
+    const surName= useSelector((state)=> state.surName)
+    const [show, setShow]= useState(false)
+    const showOff= ()=> {
+        setShow(false)
+    }
+    const checkName= ()=> {
+        if(surName=="" || firstName==="" ) {
+            setShow(true)
+        }
+        else {
+            navigation.navigate("Signup_2")
+        }
+    }
     return (
         <View style={styles.container4}>
-            <Pressable style={styles.buttonFake} onPress={()=> navigation.navigate(props.navigateLink)}>
+            <DiaLogCustom content="Please don't empty any field" show={show} showOff={showOff} />
+            <Pressable style={styles.buttonFake} onPress={()=> checkName()}>
                 <Text style={styles.textFake}>Next</Text>
             </Pressable>
         </View>
@@ -99,92 +124,235 @@ const DateMonthYear= ()=> {
 const ChooseDateofBirth= (props)=> {
     const navigation= useNavigation()
     const date= new Date()
+    const dispatch= useDispatch()
     const [selectedValue, setSelectedValue] = useState(()=> ({
         date: '',
         month: '',
         year: date.getFullYear(),
-    }));
+    }))
+    const [check,setCheck]= useState({
+        checkdate: true,
+        checkmonth: true,
+        checkpress: true
+    })
+    const [show, setShow]= useState(false)
+    const checkDate= ()=> {
+        setCheck((prev)=> ({...prev,checkdate: false}))
+        if(check.checkdate === false && check.checkmonth=== false) {
+            setCheck((prev)=> ({...prev, checkpress: false}))
+        }
+    }
+    const checkMonth= ()=> {
+        setCheck((prev)=> ({...prev,checkmonth: false}))
+        if(check.checkdate === false && check.checkmonth=== false) {
+            setCheck((prev)=> ({...prev, checkpress: false}))
+        }
+    }
+    const checkYear= ()=> {
+        if(check.checkdate === false && check.checkmonth=== false) {
+            setCheck((prev)=> ({...prev, checkpress: false}))
+        }
+    }
+
+    const [message, setMessage]= useState(()=> ("Please enter valid date of birth."))
+    const checkCondition= ()=> {
+            
+            if(((selectedValue.date== 30 || selectedValue.date== 31) && selectedValue.month==2)
+                
+                ) {
+                setMessage("Please enter valid date of birth.")
+                  setShow(true) 
+            }
+            else if((selectedValue.date== 31 && (selectedValue.month== 4 || selectedValue.month== 6 || selectedValue.month==9 || selectedValue.month== 11))) {
+                setMessage("Please enter valid date of birth.")
+                
+                setShow(true)
+            }
+            else if((selectedValue.date== 29 && parseInt(selectedValue.year) %4!== 0)) {
+                setMessage("Please enter valid date of birth.")
+                
+                setShow(true)
+            }
+            else if(selectedValue.date== "" || selectedValue.month=="") {
+                setMessage("Please choose your date of birth.")
+                setShow(true)
+            }
+        else {
+            navigation.navigate("Signup_3")
+            
+            dispatch(getBirthDay.getDate(selectedValue.date))
+            dispatch(getBirthDay.getMonth(selectedValue.month))
+            dispatch(getBirthDay.getYear(selectedValue.year))
+        }
+    }
+    const showOff= ()=> {
+        setShow(false)
+    }
+    function getAge(dateString) {
+        var today = new Date();
+        var birthDate = new Date(dateString);
+        var age = today.getFullYear() - birthDate.getFullYear() || 0;
+        var m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        return age;
+    }
     return (
         <View style={styles.container4}>
+            <DiaLogCustom content={message} show={show} showOff={showOff} />
             <Text>Date of Birth</Text>
             <View style={[styles.container3, styles.container6]}>
-                <Picker
-                    selectedValue={selectedValue.date}
-                    style={styles.stylePicker}
-                    onValueChange={(itemValue, itemIndex) => setSelectedValue((prev)=> ({...prev,date: itemValue}))}
-                >
-                    <Picker.Item label="1" value={1} />
-                    <Picker.Item label="2" value={1} />
-                    <Picker.Item label="3" value={1} />
-                    <Picker.Item label="4" value={1} />
-                    <Picker.Item label="5" value={5} />
-                    <Picker.Item label="6" value={6} />
-                    <Picker.Item label="7" value={7} />
-                    <Picker.Item label="8" value={8} />
-                    <Picker.Item label="9" value={9} />
-                    <Picker.Item label="10" value={10} />
-                    <Picker.Item label="11" value={11} />
-                    <Picker.Item label="12" value={12}/>
-                    <Picker.Item label="13" value={13} />
-                    <Picker.Item label="14" value={14} />
-                    <Picker.Item label="15" value={15} />
-                    <Picker.Item label="16" value={16} />
-                    <Picker.Item label="17" value={17} />
-                    <Picker.Item label="18" value={18} />
-                    <Picker.Item label="19" value={19} />
-                    <Picker.Item label="20" value={20} />
-                    <Picker.Item label="21" value={21} />
-                    <Picker.Item label="22" value={22} />
-                    <Picker.Item label="23" value={23} />
-                    <Picker.Item label="24" value={24} />
-                    <Picker.Item label="25" value={25} />
-                    <Picker.Item label="26" value={26} />
-                    <Picker.Item label="27" value={27} />
-                    <Picker.Item label="28" value={28} />
-                    <Picker.Item label="29" value={29} />
-                    <Picker.Item label="30" value={30} />
-                    <Picker.Item label="31" value={31} />
-                    </Picker>
-                    <Picker
-                        selectedValue={selectedValue.month}
-                        style={styles.stylePicker}
-                        onValueChange={(itemValue, itemIndex) => setSelectedValue((prev)=> ({...prev,month: itemValue}))}
-                    >
-                    {_.range(1,13).map(item=> <Picker.Item key={item} label={`${item}`} value={item}/>)}
-            
-                    </Picker>
-                <Picker
-                    selectedValue={selectedValue.year}
-                    style={styles.stylePicker}
-                    onValueChange={(itemValue, itemIndex) => setSelectedValue((prev)=> ({...prev,year: itemValue}))}
-                >
-                    {_.range(2021,1912,-1).map(item=> <Picker.Item key={item} label={`${item}`} value={item}/>)}
-                </Picker>
+                <View style={styles.container9}>
+                    <Text style={{paddingBottom: 10}}>Date</Text>
+                    <Pressable style={styles.stylePicker} >
+                        <Picker
+                            
+                            selectedValue={selectedValue.date}
+                            style={styles.stylePicker1}
+                            onValueChange={(itemValue, itemIndex) => {checkDate(),setSelectedValue((prev)=> ({...prev,date: itemValue}))}}
+                        >
+                            <Picker.Item label="1" value={1} />
+                            <Picker.Item label="2" value={2} />
+                            <Picker.Item label="3" value={3} />
+                            <Picker.Item label="4" value={4} />
+                            <Picker.Item label="5" value={5} />
+                            <Picker.Item label="6" value={6} />
+                            <Picker.Item label="7" value={7} />
+                            <Picker.Item label="8" value={8} />
+                            <Picker.Item label="9" value={9} />
+                            <Picker.Item label="10" value={10} />
+                            <Picker.Item label="11" value={11} />
+                            <Picker.Item label="12" value={12}/>
+                            <Picker.Item label="13" value={13} />
+                            <Picker.Item label="14" value={14} />
+                            <Picker.Item label="15" value={15} />
+                            <Picker.Item label="16" value={16} />
+                            <Picker.Item label="17" value={17} />
+                            <Picker.Item label="18" value={18} />
+                            <Picker.Item label="19" value={19} />
+                            <Picker.Item label="20" value={20} />
+                            <Picker.Item label="21" value={21} />
+                            <Picker.Item label="22" value={22} />
+                            <Picker.Item label="23" value={23} />
+                            <Picker.Item label="24" value={24} />
+                            <Picker.Item label="25" value={25} />
+                            <Picker.Item label="26" value={26} />
+                            <Picker.Item label="27" value={27} />
+                            <Picker.Item label="28" value={28} />
+                            <Picker.Item label="29" value={29} />
+                            <Picker.Item label="30" value={30} />
+                            <Picker.Item label="31" value={31} />
+                        </Picker>
+                    </Pressable>
+                </View>
+
+                <View style={styles.container9}>
+                    <Text style={{paddingBottom: 10}}>Month</Text>
+                    <Pressable style={styles.stylePicker} >
+                        <Picker
+                            selectedValue={selectedValue.month}
+                            style={styles.stylePicker1}
+                            onValueChange={(itemValue, itemIndex) => {checkMonth(),setSelectedValue((prev)=> ({...prev,month: itemValue}))}}
+                        >
+                        {_.range(1,13).map(item=> <Picker.Item key={item} label={`${item}`} value={item}/>)}
+                
+                        </Picker>
+                    </Pressable>
+                </View>
+
+                <View style={styles.container9}>
+                    <Text style={{paddingBottom: 10}}>Year</Text>
+                    <Pressable style={styles.stylePicker} >
+                        <Picker
+                            selectedValue={selectedValue.year}
+                            style={styles.stylePicker1}
+                            onValueChange={(itemValue, itemIndex) => {checkYear(),setSelectedValue((prev)=> ({...prev,year: itemValue}))}}
+                        >
+                            {_.range(2021,1912,-1).map(item=> <Picker.Item key={item} label={`${item}`} value={item}/>)}
+                        </Picker>
+                    </Pressable>
+                </View>
+
             </View>
+            {/*  */}
             <View>
-                <Text style={{margin: 10}}>{ date.getFullYear() - selectedValue.year} years old</Text>
+                <Text style={{margin: 10}}> { getAge(`${selectedValue.year}/${selectedValue.month}/${selectedValue.date}`) } years old</Text>
             </View>
             <View style={styles.container4}>
-                <Pressable style={styles.buttonFake} onPress={()=> navigation.navigate("Signup_3")}>
+                <Pressable style={styles.buttonFake} onPress={()=> checkCondition()}>
                     <Text style={styles.textFake}>Next</Text>
                 </Pressable>
             </View>
         </View>
     )
 }
+const DiaLogCustom= (props)=> {
+    return (
+        <View style={styles.container}>
+            <Dialog
+                visible={props.show}
+                dialogTitle={<DialogTitle title="Messenger" />}
+                dialogAnimation={new SlideAnimation({
+                slideFrom: 'bottom',
+                })}
+                footer={
+                    <DialogFooter>
+                        <DialogButton 
+                        text="Ok" 
+                        onPress={props.showOff}
+                        />
+                    </DialogFooter>
+                }
+                onTouchOutside={props.showOff}
+            >
+                <DialogContent>
+                    <Text style={styles.container2}>{props.content}</Text>
+                </DialogContent>
+            </Dialog>
+        </View>
+    )
+}
 
 const PhoneNumber= ()=> {
     const navigation= useNavigation()
+    const dispatch= useDispatch()
+    const phoneNumber= useSelector(state=> state.isphonenumber1)
+    function validPhoneNumber(phoneNumber) {
+        const regex= /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im
+        return regex.test(phoneNumber)
+    }
+    const [show, setShow]= useState(false)
+    const [content, setContent]= useState(()=> "")
+    const showOff= ()=> {
+        setShow(false)
+    }
+    const checkPhoneNumber= ()=> {
+        console.log(phoneNumber)
+        if(phoneNumber== "") {
+            setShow(true)
+            setContent("Please don't empty any field.")
+        }
+        else if(validPhoneNumber(phoneNumber)== true) {
+            navigation.navigate("Signup_4")
+        }
+        else {
+            setContent("Please enter valid phone number.")
+            setShow(true)
+        }
+        
+    }
     return (
         <View>
+            <DiaLogCustom show={show} content={content} showOff={showOff} />
             <Header />
             <Title styleAdd={styles.container4} title1="Enter your phone number" title2="Enter the mobile number on which you can be contacted. You can hide this from your profile later."/>
             <View style={{margin: 16}}>
                 <Text style={{marginBottom: 10}}>Phone number</Text>
-                <TextInput style={styles.textInput} />
+                <TextInput onChangeText={_.debounce((e)=> dispatch(allActions.getPhoneNumber(e)),500)} style={styles.textInput} />
             </View>
             <View style={styles.container4}>
-                <Pressable style={styles.buttonFake} onPress={()=> navigation.navigate("Signup_4")}>
+                <Pressable style={styles.buttonFake} onPress={()=> checkPhoneNumber()}>
                     <Text style={styles.textFake}>Next</Text>
                 </Pressable>
             </View>
@@ -193,10 +361,25 @@ const PhoneNumber= ()=> {
     )
 }
 const Gender= ()=> {
-    const [checked, setChecked]= useState("")
+    const [checked, setChecked]= useState("gvyhjb")
+    const dispatch= useDispatch()
     const navigation= useNavigation()
+    const [show, setShow]= useState(false)
+    const showOff= ()=> {
+        setShow(false)
+    }
+    const checkGender= ()=> {
+        if(checked == "" ) {
+            setShow(true)
+        }
+        else {
+            dispatch(allActions.getGenderspe(checked))
+            navigation.navigate("Signup_5")
+        }
+    }
     return (
         <View>
+            <DiaLogCustom show={show} showOff={showOff} content="Please choose your gender." />
             <Header />
             <Title styleAdd={styles.container4} title1="What's your gender ?" title2="You can change who sees your gender on your profile later."/>
             <View style={styles.container7}>
@@ -229,7 +412,7 @@ const Gender= ()=> {
                 </View>
             </View>
             <View style={styles.container4}>
-                <Pressable style={styles.buttonFake} onPress={()=> navigation.navigate("Signup_5")}>
+                <Pressable style={styles.buttonFake} onPress={()=> checkGender()}>
                     <Text style={styles.textFake}>Next</Text>
                 </Pressable>
             </View>
@@ -238,25 +421,58 @@ const Gender= ()=> {
 }
 const PassWord= ()=> {
     const navigation= useNavigation()
+    const dispatch= useDispatch()
+    const [password, setPassword]= useState("")
+    function validPassword(password) {
+        const regex= /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/gim
+        return regex.test(password)
+    }
+    const [show, setShow]=useState(false)
+    const [content, setContent]= useState("")
+    const showOff= ()=> {
+        setShow(false)
+    }
+    const checkPassword= ()=> {
+        if(password== "") {
+            setContent("Please don't empty any field.")
+            setShow(true)
+        }
+        else if(validPassword(password)== false) {
+            setShow(true)
+            setContent("Please enter valid password.")
+        }
+        else {
+            dispatch(allActions.getPassword(password))
+            navigation.navigate("Signup_6")
+        }
+    }
     return (
         <View >
+            <DiaLogCustom show={show} content={content} showOff={showOff} />
             <Header />
             <Title styleAdd={styles.container4} title1="Choose a password" title2="Create a password with at least 6 characters. It should be something that others couldn't guess"/>
             <View style={{marginTop: 15,paddingHorizontal: 16}} >
                 <Text style={{marginBottom: 10}}>New password</Text>
-                <TextInput style={styles.textInput} />
+                <TextInput onChangeText={_.debounce((e)=> setPassword(e), 500)} secureTextEntry={true} style={styles.textInput} />
             <Text style={{marginTop: 15}}>
                 By tapping Sign Up, you agree to our Terms, Data Policy and Cookie Policy. You may receive SMS notification from use and can opt out at any time.
             </Text>
             </View>
             <View style={styles.container4}>
-                <Pressable style={styles.buttonFake} onPress={()=> navigation.navigate("Signup_5")}>
+                <Pressable style={styles.buttonFake} onPress={()=> checkPassword()}>
                     <Text style={styles.textFake}>Sign Up</Text>
                 </Pressable>
             <Text style={{marginTop: 15}} onPress={()=> navigation.navigate("Login")}>
                 Already have an account ?
             </Text>
             </View>
+        </View>
+    )
+}
+const VerifyUser= ()=> {
+    return (
+        <View style={styles.container}>
+
         </View>
     )
 }
@@ -268,7 +484,7 @@ const RootSignup= ()=> {
             <Stack.Screen name="Signup_3" component={PhoneNumber} /> 
             <Stack.Screen name="Signup_4" component={Gender} />  
             <Stack.Screen name="Signup_5" component={PassWord} />  
-
+            <Stack.Screen name="Signup_6" component={VerifyUser} />
         </Stack.Navigator>  
     )
 }
@@ -317,7 +533,9 @@ const styles= StyleSheet.create({
         height: 60,
         backgroundColor: '#2e89ff',
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        paddingVertical: 10,
+        marginTop: 35
     },
     headerText: {
         fontSize: 18,
@@ -339,7 +557,8 @@ const styles= StyleSheet.create({
         borderRadius: 5,
         width: '100%',
         padding: 10,
-        borderColor: 'rgba(0,0,0,0.2)'
+        borderColor: 'rgba(0,0,0,0.2)',
+        backgroundColor: '#fff'
     },
     buttonFake: {
         alignItems: 'center',
@@ -361,14 +580,39 @@ const styles= StyleSheet.create({
         borderWidth: 1,
         borderColor: "rgba(0,0,0,0.2)",
         borderRadius: 5,
-        padding: 10,
-        width: '30%'
+        width: '100%',
+        backgroundColor: '#fff'
     },
+    stylePicker1: {
+        width: '100%',
+        borderWidth: 1,
+        borderColor: "rgba(0,0,0,0.2)",
+        borderRadius: 5,
+        padding: 10
+    },  
     inputRadio: {
         width: '100%',
         justifyContent: 'space-between',
         alignItems: 'center',
         flexDirection: 'row',
         paddingVertical: 5
-    }
+    },
+    container8: {
+        position: 'absolute',
+        zIndex: 3,
+        left: 0,
+        marginLeft: 10,
+        width: 40,
+        height: 40,
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    container9: {
+        width: '30%'
+    },
+    image2: {
+        width: 20,
+        height: 20
+    },
 })
