@@ -4,7 +4,9 @@ import ImageAvatar from '../assets/Facebook-Messenger-Logo-PNG-High-Quality-Imag
 import { useNavigation } from "@react-navigation/native"
 import {useState} from 'react'
 import { useGetPosts } from "../Api/useRequest"
+import { createDrawerNavigator  } from '@react-navigation/drawer'
 
+const Drawer= createDrawerNavigator()
 const Login= (props)=> {  
     const { status, data, error, isFetching } = useGetPosts()
 
@@ -52,7 +54,7 @@ const PerformAction= (props)=> {
                 </Pressable>
             </View>
             <View style={styles.container4}>
-                <Pressable style={[styles.buttonFake, styles.buttonFake1]}>
+                <Pressable style={[styles.buttonFake, styles.buttonFake1]} onPress={()=> navigation.navigate("Drawer")}>
                     <Text style={[styles.textFake, styles.textFake2]}>Forgot password</Text>
                 </Pressable>
             </View>

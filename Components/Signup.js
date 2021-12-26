@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useMemo } from "react"
 import {TextInput, View, Text, StyleSheet, Pressable, Image} from 'react-native'
 import { createStackNavigator } from "@react-navigation/stack"
 import { useNavigation } from "@react-navigation/native"
@@ -10,6 +10,7 @@ import allActions from "../Redux/Action"
 import ChevronLeft from '../assets/chervon-left.png'
 import Dialog, { SlideAnimation, DialogContent, DialogTitle, DialogFooter,DialogButton } from 'react-native-popup-dialog'
 import getBirthDay from "../Redux/Action/getBirthDay"
+import axios from 'axios'
 
 const Stack= createStackNavigator()
 const IconChevronLeft= ()=> {
@@ -427,8 +428,8 @@ const PassWord= ()=> {
         const regex= /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/gim
         return regex.test(password)
     }
-    const [show, setShow]=useState(false)
     const [content, setContent]= useState("")
+    const [show, setShow]=useState(false)
     const showOff= ()=> {
         setShow(false)
     }
@@ -454,25 +455,117 @@ const PassWord= ()=> {
             <View style={{marginTop: 15,paddingHorizontal: 16}} >
                 <Text style={{marginBottom: 10}}>New password</Text>
                 <TextInput onChangeText={_.debounce((e)=> setPassword(e), 500)} secureTextEntry={true} style={styles.textInput} />
-            <Text style={{marginTop: 15}}>
-                By tapping Sign Up, you agree to our Terms, Data Policy and Cookie Policy. You may receive SMS notification from use and can opt out at any time.
-            </Text>
+                <Text style={{marginTop: 15}}>
+                    By tapping Sign Up, you agree to our Terms, Data Policy and Cookie Policy. You may receive SMS notification from use and can opt out at any time.
+                </Text>
             </View>
             <View style={styles.container4}>
                 <Pressable style={styles.buttonFake} onPress={()=> checkPassword()}>
-                    <Text style={styles.textFake}>Sign Up</Text>
+                    <Text style={styles.textFake}>Next</Text>
                 </Pressable>
-            <Text style={{marginTop: 15}} onPress={()=> navigation.navigate("Login")}>
-                Already have an account ?
-            </Text>
+                <Text style={{marginTop: 15}} onPress={()=> navigation.navigate("Login")}>
+                    Already have an account ?
+                </Text>
             </View>
         </View>
     )
 }
-const VerifyUser= ()=> {
-    return (
-        <View style={styles.container}>
+const Email= ()=> {
+    const [show, setShow]=useState(false)
+    const email= useSelector(state=> state.isemail1)
+    const [content, setContent]= useState(()=> "")
+    const navigation= useNavigation()
+    const dispatch= useDispatch()
+    const url= useMemo(()=> ("http://localhost:4000/email/authentication?code"),[url])
+    const validEmail= (email)=> {
+        const re= /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        return re.test(email.toLowerCase())
+    }
+    const showOff= ()=> {
+        setShow(false)
+    }
+    const checkEmail= ()=> {
+        if(email== "") {
+            setContent("Please don't empty any field")
+            setShow(true)
 
+        }
+        else if(validEmail(email)=== true) {
+            navigation.navigate("Signup_7")
+            axios({
+                url: url,
+                method: "POST",
+                data: {
+                    email: email
+                }      
+            })
+            
+        }       
+        else {
+            setContent("Email is invalid, please try again")
+            setShow(true)
+        }
+    }
+    return (
+        <View >
+            <DiaLogCustom show={show} content={content} showOff={showOff} />
+            <Header />
+            <Title styleAdd={styles.container4} title1="Enter your email" title2="Enter you email to signup account. This will help you when you forgot password"/>
+            <View style={{marginTop: 15,paddingHorizontal: 16}} >
+                <Text style={{marginBottom: 10}}>Enter your email</Text>
+                <TextInput onChangeText={_.debounce((e)=> dispatch(allActions.getEmail(e)), 400)} style={styles.textInput} />
+                
+            </View>
+            <View style={styles.container4}>
+                <Pressable style={styles.buttonFake} onPress={()=> checkEmail()}>
+                    <Text style={styles.textFake}>Next</Text>
+                </Pressable>
+                
+            </View>
+        </View>
+
+    )
+}
+const VerifyUser= ()=> {
+    const [code, setCode]= useState()
+    const [show, setShow]= useState(false)
+    const showOff= ()=> {
+        setShow(false)
+    }
+    const checkCodeVerif= async ()=> {
+        await axios({
+            url: 'http://localhost:4000/authentication',
+            method: "POST",
+            data: {
+                code: code
+            }
+        })
+        .then(res=> console.log(res.data))
+    }
+    const checkVerify= ()=> {
+        if(code =="") {
+            setShow(true)
+        }
+        else {
+
+        }
+    }
+    return (
+        <View >
+            <DiaLogCustom show={show} showOff={showOff} content="Please dont't empty any fields." />
+            <Header />
+            <Title styleAdd={styles.container4} title1="Verify accout" title2="We've just sent to your email a code including 6 digits verify, Please check your email and enter code into below filed."/>
+            <View style={{marginTop: 15,paddingHorizontal: 16}} >
+                <Text style={{marginBottom: 10}}>Enter verify code</Text>
+                <TextInput onChangeText={_.debounce((e)=> setCode(e), 200)} style={styles.textInput} />
+                
+            </View>
+            <View style={styles.container4}>
+                <Pressable style={styles.buttonFake} onPress={()=> checkVerify()}>
+                    <Text style={styles.textFake}>Verify</Text>
+                </Pressable>
+                
+            </View>
         </View>
     )
 }
@@ -484,7 +577,9 @@ const RootSignup= ()=> {
             <Stack.Screen name="Signup_3" component={PhoneNumber} /> 
             <Stack.Screen name="Signup_4" component={Gender} />  
             <Stack.Screen name="Signup_5" component={PassWord} />  
-            <Stack.Screen name="Signup_6" component={VerifyUser} />
+            <Stack.Screen name="Signup_6" component={Email} />
+            <Stack.Screen name="Signup_7" component={VerifyUser} />
+
         </Stack.Navigator>  
     )
 }

@@ -9,6 +9,7 @@ export const typeDefs = gql `
         year: Int, 
         age: Int,
         phonenumber: String,
+        email: String,
         gender: String,
         password: String
     }
@@ -25,6 +26,7 @@ export const typeDefs = gql `
             year: Int, 
             age: Int,
             phonenumber: String,
+            email: String,
             gender: String,
             password: String
         ): User

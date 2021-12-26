@@ -32,6 +32,9 @@ app.use(express.urlencoded({
 function getRandomArbitrary(min, max) {
     return Math.ceil(Math.random() * (max - min) + min)
 }
+const resetCodeVerify= setTimeout(()=> {
+    codeVerify= 0
+}, 30000)
 // connect MongoDb
 const connectDB= async ()=> {
     try {
@@ -44,7 +47,6 @@ const connectDB= async ()=> {
     }
 }
 connectDB()
-
 // setup Apollo server
 let apolloServer= null
 const startServer= async() => {
@@ -59,23 +61,42 @@ const startServer= async() => {
 
 startServer()
 // email authentication
-route.post('/email/authentication', (req,res)=> {
-    // const mailOptions= {
-    //     from: `${process.env.GMAIL_ACCOUNT}`,
-    //     to: `giang10a1dz@gmail.com`,
-    //     subject: "Verify your account",
-    //     html: `Your code is : <strong>${getRandomArbitrary(100000,1000000)}</strong> </br> Plese don't share this code with anyone.`
-    // }
-    // transporter.sendMail(mailOptions, function(err, info) {
-    //     if(err) {
-    //         console.log(err)
-    //     }
-    //     else {
-    //         console.log('Email is sent successfully.')
-    //     }
-    // })
-    res.send(req.body.email)
+var codeVerify
+route.post('/email/authentication', async (req,res)=> {
+    
+    codeVerify= getRandomArbitrary(100000,1000000)
+    resetCodeVerify
+    const mailOptions= {
+        from: `${process.env.GMAIL_ACCOUNT}`,
+        to: `giang10a1dz@gmail.com`,
+        subject: "Verify your account",
+        html: `Your code is : <strong>${codeVerify}</strong> </br> Plese don't share this code with anyone.`
+    }
+    await transporter.sendMail(mailOptions, async (err, info)=> {
+        if(err) {
+            console.log(err)
+        }
+        else {
+            console.log('Email is sent successfully.')
+        }
+    })
+    res.send("Hello")
 })
+route.post("/authentication", (req, res)=> {
+    if(req.body.code== codeVerify && codeVerify != 0) {
+        return res.sendStatus(200).send("ok")
+    }
+    else if(req.body.code== codeVerify && codeVerify == 0) {
+        clearTimeout(resetCodeVerify)
+        return res.sendStatus(200).send("expire")
+    }
+    else {
+        res.sendStatus(200).send("incorrect")
+    }
+})
+
+
+
 // run http
 const httpServer= http.createServer(app)
 httpServer.listen(process.env.PORT, ()=> console.log(process.env.PORT))

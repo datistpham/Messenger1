@@ -1,7 +1,7 @@
 import mongoose from "mongoose"
 const schema= mongoose.Schema
 
-const userSchema= schema({
+const userSchema= new schema({
     firstname: {
         type: String,
     },
@@ -21,6 +21,9 @@ const userSchema= schema({
         type: Number
     },
     phonenumber: {
+        type: String
+    },
+    email: {
         type: String
     },
     gender: {
