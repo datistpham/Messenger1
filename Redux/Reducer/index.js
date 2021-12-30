@@ -5,6 +5,7 @@ import { isDate1, isMonth1, isYear1 } from "./datemonthyear.reducer"
 import isphonenumber1, {isemail1} from "./phonenumberandEmail.reducer"
 import isGender1 from "./gender.reducer"
 import isPassword1 from "./password"
+import googleaccount from "./googleaccount.reducer"
 const rootReducer= combineReducers({
     firstName,
     surName,
@@ -14,7 +15,8 @@ const rootReducer= combineReducers({
     isphonenumber1,
     isGender1,
     isPassword1,
-    isemail1
+    isemail1,
+    googleaccount
 })
 
 export default rootReducer

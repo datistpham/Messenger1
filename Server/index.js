@@ -86,7 +86,7 @@ route.post("/authentication", (req, res)=> {
     if(req.body.code== codeVerify && codeVerify != 0) {
         return res.sendStatus(200).send("ok")
     }
-    else if(req.body.code== codeVerify && codeVerify == 0) {
+    else if(codeVerify == 0) {
         clearTimeout(resetCodeVerify)
         return res.sendStatus(200).send("expire")
     }

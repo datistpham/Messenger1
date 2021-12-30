@@ -476,7 +476,7 @@ const Email= ()=> {
     const [content, setContent]= useState(()=> "")
     const navigation= useNavigation()
     const dispatch= useDispatch()
-    const url= useMemo(()=> ("http://localhost:4000/email/authentication?code"),[url])
+    const url= useMemo(()=> ("http://192.168.1.5:4000/email/authentication?code"),[url])
     const validEmail= (email)=> {
         const re= /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
         return re.test(email.toLowerCase())
@@ -534,7 +534,7 @@ const VerifyUser= ()=> {
     }
     const checkCodeVerif= async ()=> {
         await axios({
-            url: 'http://localhost:4000/authentication',
+            url: 'http://192.168.1.5:4000/authentication',
             method: "POST",
             data: {
                 code: code

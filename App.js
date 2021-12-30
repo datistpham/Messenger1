@@ -8,7 +8,15 @@ import { createStore } from 'redux'
 import rootReducer from './Redux/Reducer'
 import { QueryClient, QueryClientProvider, useQuery } from 'react-query'
 import { ReactQueryDevtools } from 'react-query/devtools'
-import MyDrawer from './Components/Drawer'
+import Root from './Components/Drawer'
+import * as Notifications from 'expo-notifications'
+Notifications.setNotificationHandler({
+  handleNotification: async ()=> ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true
+  })
+})
 const store= createStore(
   rootReducer,window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__() 
 )
@@ -23,7 +31,8 @@ export default function App() {
                 <Stack.Navigator screenOptions={{headerShown: false,gestureEnabled: true}} >
                   <Stack.Screen  name="Login" component={Login} />
                   <Stack.Screen name="Signup" component={Signup} />   
-                  <Stack.Screen name="Drawer" component={MyDrawer} />
+         
+                  <Stack.Screen name="TabandDrawer" component={Root} />
                 </Stack.Navigator>
               </NavigationContainer>
 
